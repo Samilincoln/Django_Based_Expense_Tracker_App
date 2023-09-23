@@ -33,6 +33,33 @@ def index(request):
         return render(request, 'home/index.html', context)
     return redirect('home')
 
+def register(request):
+    return render(request,'home/register.html')
+    #return HttpResponse('This is blog')
+def password(request):
+    return render(request,'home/password.html')
+
+def charts(request):
+    return render(request,'home/charts.html')
+def search(request):
+    if request.session.has_key('is_logged'):
+        user_id = request.session["user_id"]
+        user = User.objects.get(id=user_id)
+        fromdate = request.GET['fromdate']
+        todate = request.GET['todate']
+        addmoney = Addmoney_info.objects.filter(user=user, Date__range=[fromdate,todate]).order_by('-Date')
+        return render(request,'home/tables.html',{'addmoney':addmoney})
+    return redirect('home')
+def tables(request):
+    if request.session.has_key('is_logged'):
+        user_id = request.session["user_id"]
+        user = User.objects.get(id=user_id)
+        fromdate = request.POST.get('fromdate')
+        todate = request.POST.get('todate')
+        addmoney = Addmoney_info.objects.filter(user=user).order_by('-Date')
+        return render(request,'home/tables.html',{'addmoney':addmoney})
+    return redirect('home')
+
 def addmoney(request):
     return render (request, 'home/addmoney.html')
 
