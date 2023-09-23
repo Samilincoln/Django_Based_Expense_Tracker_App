@@ -142,6 +142,27 @@ def addmoney_submission(request):
             Category = request.POST['Category']
             add = Addmoney_info(user=user1, add_money=add_money, quantity=quantity, Date=Date, Category=Category)
             add.save()
+            paginator = Paginator(addmoney_info1, 4)
+            page_number = request.GET.get('page')
+            page_obj = Paginator.get_page(paginator, page_number)
+
+            context = {
+                'page_obj' : page_obj
+            }
+        return render(request, 'home/index.html', context)
+    return redirect('/index')
+
+def addmoney_update(request, id):
+    if request.session.has_key('is_logged'):
+        if request.method == 'POST':
+            add = Addmoney_info.objects.get(id=id)
+            add.add_money= request.POST['add_money']
+            add.quantity = request.POST['quantity']
+            add.Date = request.POST['Date']
+            add.Category = request.POST['Category']
+            add.save()
+            return redirect('/index')
+    return redirect('/home')
 
 
 
