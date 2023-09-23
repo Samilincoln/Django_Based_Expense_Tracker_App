@@ -180,5 +180,150 @@ def expense_delete(request, id):
         return redirect('/index')
     return redirect('/home')
 
+def expense_month(request):
+    todays_date = datetime.date.today()
+    one_month_ago = todays_date - datetime.timedelta(days=30)
+    user_id = request.session['user_id']
+    user1 = User.objects.get(id=user_id)
+    addmoney = Addmoney_info.objects.filter(user=user1,Date_gte=one_month_ago,Date_lte=todays_date)
+    finalrep = {}
+
+    def get_Category(addmoney_info):
+        return addmoney_info.Category
+    Category_list = list(set(map(get_Category,addmoney)))
+
+    def get_expense_category_amount(Category,add_money):
+        quantity = 0 
+        filtered_by_category = addmoney.filter(Category = Category,add_money="Expense") 
+        for item in filtered_by_category:
+            quantity+=item.quantity
+        return quantity
+
+    for x in addmoney:
+        for y in Category_list:
+            finalrep[y]= get_expense_category_amount(y,"Expense")
+
+    return JsonResponse({'expense_category_data': finalrep}, safe=False)
+
+
+def stats(request):
+    if request.session.has_key('is_logged') :
+        todays_date = datetime.date.today()
+        one_month_ago = todays_date-datetime.timedelta(days=30)
+        user_id = request.session["user_id"]
+        user1 = User.objects.get(id=user_id)
+        addmoney_info = Addmoney_info.objects.filter(user = user1,Date__gte=one_month_ago,Date__lte=todays_date)
+        sum = 0 
+        for i in addmoney_info:
+            if i.add_money == 'Expense':
+                sum=sum+i.quantity
+        addmoney_info.sum = sum
+        sum1 = 0 
+        for i in addmoney_info:
+            if i.add_money == 'Income':
+                sum1 =sum1+i.quantity
+        addmoney_info.sum1 = sum1
+        x= user1.userprofile.Savings+addmoney_info.sum1 - addmoney_info.sum
+        y= user1.userprofile.Savings+addmoney_info.sum1 - addmoney_info.sum
+        if x<0:
+            messages.warning(request,'Your expenses exceeded your savings')
+            x = 0
+        if x>0:
+            y = 0
+        addmoney_info.x = abs(x)
+        addmoney_info.y = abs(y)
+        return render(request,'home/stats.html',{'addmoney':addmoney_info})
+
+def expense_week(request):
+    todays_date = datetime.date.today()
+    one_week_ago = todays_date-datetime.timedelta(days=7)
+    user_id = request.session["user_id"]
+    user1 = User.objects.get(id=user_id)
+    addmoney = Addmoney_info.objects.filter(user = user1,Date__gte=one_week_ago,Date__lte=todays_date)
+    finalrep ={}
+
+    def get_Category(addmoney_info):
+        return addmoney_info.Category
+    Category_list = list(set(map(get_Category,addmoney)))
+
+
+    def get_expense_category_amount(Category,add_money):
+        quantity = 0 
+        filtered_by_category = addmoney.filter(Category = Category,add_money="Expense") 
+        for item in filtered_by_category:
+            quantity+=item.quantity
+        return quantity
+
+    for x in addmoney:
+        for y in Category_list:
+            finalrep[y]= get_expense_category_amount(y,"Expense")
+
+    return JsonResponse({'expense_category_data': finalrep}, safe=False)
+    
+def weekly(request):
+    if request.session.has_key('is_logged') :
+        todays_date = datetime.date.today()
+        one_week_ago = todays_date-datetime.timedelta(days=7)
+        user_id = request.session["user_id"]
+        user1 = User.objects.get(id=user_id)
+        addmoney_info = Addmoney_info.objects.filter(user = user1,Date__gte=one_week_ago,Date__lte=todays_date)
+        sum = 0 
+        for i in addmoney_info:
+            if i.add_money == 'Expense':
+                sum=sum+i.quantity
+        addmoney_info.sum = sum
+        sum1 = 0 
+        for i in addmoney_info:
+            if i.add_money == 'Income':
+                sum1 =sum1+i.quantity
+        addmoney_info.sum1 = sum1
+        x= user1.userprofile.Savings+addmoney_info.sum1 - addmoney_info.sum
+        y= user1.userprofile.Savings+addmoney_info.sum1 - addmoney_info.sum
+        if x<0:
+            messages.warning(request,'Your expenses exceeded your savings')
+            x = 0
+        if x>0:
+            y = 0
+        addmoney_info.x = abs(x)
+        addmoney_info.y = abs(y)
+    return render(request,'home/weekly.html',{'addmoney_info':addmoney_info})
+
+def check(request):
+    if request.method == 'POST':
+        user_exists = User.objects.filter(email=request.POST['email'])
+        messages.error(request,"Email not registered, TRY AGAIN!!!")
+        return redirect("/reset_password")
+
+def info_year(request):
+    todays_date = datetime.date.today()
+    one_week_ago = todays_date-datetime.timedelta(days=30*12)
+    user_id = request.session["user_id"]
+    user1 = User.objects.get(id=user_id)
+    addmoney = Addmoney_info.objects.filter(user = user1,Date__gte=one_week_ago,Date__lte=todays_date)
+    finalrep ={}
+
+    def get_Category(addmoney_info):
+        return addmoney_info.Category
+    Category_list = list(set(map(get_Category,addmoney)))
+
+
+    def get_expense_category_amount(Category,add_money):
+        quantity = 0 
+        filtered_by_category = addmoney.filter(Category = Category,add_money="Expense") 
+        for item in filtered_by_category:
+            quantity+=item.quantity
+        return quantity
+
+    for x in addmoney:
+        for y in Category_list:
+            finalrep[y]= get_expense_category_amount(y,"Expense")
+
+    return JsonResponse({'expense_category_data': finalrep}, safe=False)
+
+def info(request):
+    return render(request,'home/info.html')
+
+
+
 
 
