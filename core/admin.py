@@ -1,10 +1,10 @@
 from django.contrib import admin
-from .models import Addmoney_info
+from .models import Addbook_info
 
-class Addmoney_infoAdmin(admin.ModelAdmin):
-    list_display = ("user","quantity","Date","Category","add_money")
+class Addbook_infoAdmin(admin.ModelAdmin):
+    list_display = ("user", 'book_id', 'title', 'subtitle', 'authors', 'publisher', 'Date', 'category', 'distribution_expense')
 
-admin.site.register(Addmoney_info,Addmoney_infoAdmin)
+admin.site.register(Addbook_info,Addbook_infoAdmin)
 
 from django.contrib.sessions.models import Session
 admin.site.register(Session)
